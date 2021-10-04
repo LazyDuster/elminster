@@ -1,5 +1,15 @@
 from requests import get
 import youtube_dl
+import discord
+from discord.ext import commands
+import logging
+
+# bot setup
+print(discord.__version__)
+description = 'I have no enemies, merely topologies of ignorance!'
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(command_prefix='$', description=description, intents=intents, help_command=None)
 
 class ErrorLogging(object):
     def debug(self, msg):
@@ -29,9 +39,28 @@ def download_video(search):
             video = ydl.extract_info(search, download=False)
         ydl.download([video])
 
-def main():
+@bot.event
+async def on_ready():
     print("Behold! The great and powerful Elminster!")
-    download_video("Developers") # I HAVE FOUR WORDS FOR YOU, I! LOVE! THIS! COMPANY!
+    print(bot.user.name + '@%s' % bot.user.id)
 
-if __name__ == "__main__":
-    main()
+@bot.command()
+async def help(ctx):
+    await ctx.send('Begin a request with \'$\' and I will dazzle you with my abilities!')
+
+@bot.command()
+async def play(ctx, search):
+    download_video(search)
+
+@bot_command()
+async def developers(ctx):
+    download_video("Developers")
+
+# discord.py logs
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+
+bot.run('token')
