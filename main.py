@@ -51,10 +51,12 @@ async def help(ctx):
 @bot.command()
 async def play(ctx, search):
     download_video(search)
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("output.opus"))
 
-@bot_command()
+@bot.command()
 async def developers(ctx):
     download_video("Developers")
+    await ctx.send("DEVELOPERS DEVELOPERS DEVELOPERS DEVELOPERS")
 
 # discord.py logs
 logger = logging.getLogger('discord')
@@ -63,4 +65,6 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-bot.run('token')
+with open('./secret', 'r') as f:
+    token = f.readline()
+bot.run(token)
