@@ -74,8 +74,9 @@ async def dc(ctx):
     if ctx.voice_client is not None:
         if ctx.voice_client:
             await ctx.guild.voice_client.disconnect()
+            ctx.send('Elminster shall take his leave!')
         else:
-            ctx.send('Silence wench, I\'m not in a voice channel.')
+            ctx.send('Silence knave, I\'m not in a voice channel.')
 
 # discord.py logs
 logger = logging.getLogger('discord')
@@ -88,4 +89,3 @@ logger.addHandler(handler)
 with open('./secret', 'r') as f:
     token = f.readline()
 bot.run(token)
-#download_video('sleeping in a jar')
