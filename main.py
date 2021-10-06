@@ -11,6 +11,7 @@ intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix='$', description=description, intents=intents, help_command=None)
 
+# Error logging class, unused right now.
 class ErrorLogging(object):
     def debug(self, msg):
         pass
@@ -19,6 +20,7 @@ class ErrorLogging(object):
     def error(self, msg):
         print(msg)
 
+# Queries youtube with passed search term or link and downloads an audio file in opus format.
 def download_video(search):
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -27,7 +29,7 @@ def download_video(search):
             'preferredcodec': 'opus',
         }],
         'outtmpl': 'output.%(ext)s',
-        'verbose': True,
+        'verbose': False,
         'logger': ErrorLogging(),
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -39,6 +41,7 @@ def download_video(search):
             video = ydl.extract_info(search, download=False)
         ydl.download([video])
 
+# commands
 @bot.event
 async def on_ready():
     print("Behold! The great and powerful Elminster!")
@@ -51,12 +54,28 @@ async def help(ctx):
 @bot.command()
 async def play(ctx, search):
     download_video(search)
-    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("output.opus"))
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("output.opus"), volume=0.1)
+    if ctx.voice_client is None:
+        channel = ctx.message.author.voice.channel
+        await channel.connect()
+    ctx.voice_client.play(source)
 
 @bot.command()
 async def developers(ctx):
-    download_video("Developers")
     await ctx.send("DEVELOPERS DEVELOPERS DEVELOPERS DEVELOPERS")
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("developers.opus"), volume=0.1)
+    if ctx.voice_client is None:
+        channel = ctx.message.author.voice.channel
+        await channel.connect()
+    ctx.voice_client.play(source)
+
+@bot.command()
+async def dc(ctx):
+    if ctx.voice_client is not None:
+        if ctx.voice_client:
+            await ctx.guild.voice_client.disconnect()
+        else:
+            ctx.send('Silence wench, I\'m not in a voice channel.')
 
 # discord.py logs
 logger = logging.getLogger('discord')
@@ -65,6 +84,8 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+# open 
 with open('./secret', 'r') as f:
     token = f.readline()
 bot.run(token)
+#download_video('sleeping in a jar')
