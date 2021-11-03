@@ -37,9 +37,11 @@ def download_video(search):
             get(search)
         except:
             video = ydl.extract_info(f"ytsearch:{search}", download=False)['entries'][0]['webpage_url']
+            return video
         else:
             video = ydl.extract_info(search, download=False)
-        ydl.download([video])
+            return video
+        #ydl.download([video])
 
 # commands
 @bot.event
@@ -53,8 +55,9 @@ async def help(ctx):
 
 @bot.command()
 async def play(ctx, search):
-    download_video(search)
-    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("output.opus"), volume=0.1)
+    url = download_video(search)
+    #source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("output.opus"), volume=0.1)
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(url), volume=0.1)
     if ctx.voice_client is None:
         channel = ctx.message.author.voice.channel
         await channel.connect()
@@ -74,9 +77,9 @@ async def dc(ctx):
     if ctx.voice_client is not None:
         if ctx.voice_client:
             await ctx.guild.voice_client.disconnect()
-            ctx.send('Elminster shall take his leave!')
+            await ctx.send('Elminster shall take his leave!')
         else:
-            ctx.send('Silence knave, I\'m not in a voice channel.')
+            await ctx.send('Silence knave, I\'m not in a voice channel.')
 
 # discord.py logs
 logger = logging.getLogger('discord')
