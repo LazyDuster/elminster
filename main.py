@@ -38,6 +38,7 @@ def download_video(search):
             get(search)
         except:
             video = ydl.extract_info(f"ytsearch:{search}", download=False)['entries'][0]['webpage_url']
+            return video
         else:
             video = search
         ydl.download([video])
